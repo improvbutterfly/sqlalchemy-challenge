@@ -135,8 +135,8 @@ def date_start(start):
 
 	session.close()
 
-	# Check if start is actually a date. 
-	if re.fullmatch(r'\d\d\d\d-\d\d-\d\d',start):
+	# Check if start is actually a date in the correct format. 
+	if re.fullmatch(r'(19|20)\d\d-((0[1-9])|(1[0-2]))-((0[1-9])|([12]\d)|(3[01]))', start):
 		# Check if start is within the dates in the database
 		if (dt.datetime.strptime(start, "%Y-%m-%d") >= dt.datetime.strptime(first_date, "%Y-%m-%d")) and \
 		(dt.datetime.strptime(start, "%Y-%m-%d") <= dt.datetime.strptime(last_date, "%Y-%m-%d")):
@@ -164,7 +164,7 @@ def date_start(start):
 
 
 	# If start not a date or correct format, return an error.
-	return jsonify({"error": f"{start} is not a date or in correct format. Date should be YYYY-MM-DD"}), 404
+	return jsonify({"error": f"{start} is not a valid date or in correct format. Date should be YYYY-MM-DD"}), 404
 
 # For dynamic search by start date:
 # Calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
@@ -183,8 +183,9 @@ def date_start_end(start, end):
 
 	session.close()
 
-	# Check if start is actually a date. 
-	if re.fullmatch(r'\d\d\d\d-\d\d-\d\d',start) and re.fullmatch(r'\d\d\d\d-\d\d-\d\d',end):
+	# Check if start and end are actually a date in the correct format. 
+	if re.fullmatch(r'(19|20)\d\d-((0[1-9])|(1[0-2]))-((0[1-9])|([12]\d)|(3[01]))', start) and \
+	re.fullmatch(r'(19|20)\d\d-((0[1-9])|(1[0-2]))-((0[1-9])|([12]\d)|(3[01]))', end):
 		# Check if start and end is within the dates in the database
 		if (dt.datetime.strptime(start, "%Y-%m-%d") >= dt.datetime.strptime(first_date, "%Y-%m-%d")) and \
 		(dt.datetime.strptime(start, "%Y-%m-%d") <= dt.datetime.strptime(last_date, "%Y-%m-%d")) and \
@@ -219,7 +220,7 @@ def date_start_end(start, end):
 
 
 	# If start not a date or correct format, return an error.
-	return jsonify({"error": f"{start} and/or {end} is not a date or in correct format. Date should be YYYY-MM-DD"}), 404
+	return jsonify({"error": f"{start} and/or {end} is not a valid date or in correct format. Date should be YYYY-MM-DD"}), 404
 
 # For base route:
 # List all routes that are available.

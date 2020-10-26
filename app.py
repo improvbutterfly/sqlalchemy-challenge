@@ -59,7 +59,8 @@ def stations():
 	session = Session(engine)
 
     # Get precipitation info from DB
-	results = session.query(Station.station, Station.name, Station.latitude, Station.longitude, Station.id, Station.elevation).all()
+	results = session.query(Station.station, Station.name, Station.latitude, Station.longitude, Station.id, 
+		Station.elevation).all()
 
 	session.close()
 
@@ -76,9 +77,35 @@ def stations():
 
 	return jsonify(station_data)
 
-#@app.route("/api/v1.0/tobs")
-#def tobs():
+@app.route("/api/v1.0/tobs")
+def tobs():
+	session = Session(engine)
 
+	# Get last date in database
+	get_last_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+	last_date = get_last_date.date
+
+	# Get a year earlier
+	year_before = dt.date.fromisoformat(last_date) - dt.timedelta(days=365)
+
+
+	results = session.query(Measurement.station, func.count(Measurement.id)).group_by(Measurement.station).order_by(
+		func.count(Measurement.id).desc()).first()
+	station = results.station
+
+	results = session.query(Measurement.date, Measurement.tobs, Measurement.station).filter(Measurement.station == station).filter(Measurement.date >= year_before).all()
+
+	session.close()
+
+	tobs_data = []
+	for date, tobs, station in results:
+		tobs_dict = {}
+		tobs_dict["date"] = date
+		tobs_dict["tobs"] = tobs
+		tobs_dict["station"] = station
+		tobs_data.append(tobs_dict)
+
+	return jsonify(tobs_data)
 
 @app.route("/")
 def welcome():
@@ -87,6 +114,9 @@ def welcome():
     	f'<ul><li>Queries precipitation by date</li></ul></p>'
     	f'<p><a href="/api/v1.0/stations">/api/v1.0/stations</a><br />'
     	f'<ul><li>Queries station data</li></ul></p>'
+    	f'<p><a href="/api/v1.0/tobs">/api/v1.0/tobs</a><br />'
+    	f'<ul><li>Queries temperature data over the last year in the database at the most popular station</li></ul></p>'
+
     )
 
 

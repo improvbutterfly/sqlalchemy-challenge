@@ -122,18 +122,36 @@ def date_begin(start):
 	get_first_date = session.query(Measurement.date).order_by(Measurement.date).first()
 	first_date = get_first_date.date
 
+	session.close()
 
 	# Check if start is actually a date. 
 	if re.fullmatch(r'\d\d\d\d-\d\d-\d\d',start):
 		# Check if start is within the dates in the database
 		if (dt.datetime.strptime(start, "%Y-%m-%d") >= dt.datetime.strptime(first_date, "%Y-%m-%d")) and \
 		(dt.datetime.strptime(start, "%Y-%m-%d") <= dt.datetime.strptime(last_date, "%Y-%m-%d")):
-			return start
+			# Now we can perform the search in the databse. Start a new session.
+			session = Session(engine)
+			results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+			filter(Measurement.date >= start).all()
+			session.close()
+
+			# Put results in dictionary
+			tobs_data = []
+			for min_temp, max_temp, avg_temp in results:
+				tobs_dict = {}
+				tobs_dict["start date"] = start
+				tobs_dict["end date"] = last_date
+				tobs_dict["min temp"] = min_temp
+				tobs_dict["max temp"] = max_temp
+				tobs_dict["avg temp"] = avg_temp
+				tobs_data.append(tobs_dict)
+
+			return jsonify(tobs_data)
+#			return start
 
 		# If start not in database date range, return an error.
 		return jsonify({"error": f"{start} is not in database date range. Must be between {first_date} and {last_date}"}), 404
 
-	session.close()
 
 	# If start not a date or correct format, return an error.
 	return jsonify({"error": f"{start} is not a date or in correct format. Date should be YYYY-MM-DD"}), 404

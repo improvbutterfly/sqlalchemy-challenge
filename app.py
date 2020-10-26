@@ -1,6 +1,9 @@
 import numpy as np
 import datetime as dt
 
+# Import regular expression package to check date in search
+import re
+
 # Python SQL toolkit and Object Relational Mapper
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -107,15 +110,60 @@ def tobs():
 
 	return jsonify(tobs_data)
 
+@app.route("/api/v1.0/<start>")
+def date_begin(start):
+	session = Session(engine)
+
+	# Get last date in database
+	get_last_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+	last_date = get_last_date.date
+
+	# Get first date in database
+	get_first_date = session.query(Measurement.date).order_by(Measurement.date).first()
+	first_date = get_first_date.date
+
+
+	# Check if start is actually a date. 
+	if re.fullmatch(r'\d\d\d\d-\d\d-\d\d',start):
+		# Check if start is within the dates in the database
+		if (dt.datetime.strptime(start, "%Y-%m-%d") >= dt.datetime.strptime(first_date, "%Y-%m-%d")) and \
+		(dt.datetime.strptime(start, "%Y-%m-%d") <= dt.datetime.strptime(last_date, "%Y-%m-%d")):
+			return start
+
+		# If start not in database date range, return an error.
+		return jsonify({"error": f"{start} is not in database date range. Must be between {first_date} and {last_date}"}), 404
+
+	session.close()
+
+	# If start not a date or correct format, return an error.
+	return jsonify({"error": f"{start} is not a date or in correct format. Date should be YYYY-MM-DD"}), 404
+
+
 @app.route("/")
 def welcome():
-    return (f'<h1>Available Routes</h1>'
+	session = Session(engine)
+
+	# Get last date in database
+	get_last_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+	last_date = get_last_date.date
+
+	# Get first date in database
+	get_first_date = session.query(Measurement.date).order_by(Measurement.date).first()
+	first_date = get_first_date.date
+
+	session.close()
+
+	return (f'<h1>Available Routes</h1>'
     	f'<p><a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a><br />'
     	f'<ul><li>Queries precipitation by date</li></ul></p>'
     	f'<p><a href="/api/v1.0/stations">/api/v1.0/stations</a><br />'
     	f'<ul><li>Queries station data</li></ul></p>'
     	f'<p><a href="/api/v1.0/tobs">/api/v1.0/tobs</a><br />'
     	f'<ul><li>Queries temperature data over the last year in the database at the most popular station</li></ul></p>'
+    	f'<p>/api/v1.0/&lt;date&gt;<br />'
+    	f'<ul><li>Date parameter must be in format YYYY-MM-DD to return a result. Return a JSON list of the \
+    	minimum temperature, the average temperature, and the max temperature for a given start start date. \
+    	Date range in database is {first_date} to {last_date}</li></ul></p>'
 
     )
 

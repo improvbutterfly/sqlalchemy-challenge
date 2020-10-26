@@ -39,6 +39,9 @@ app = Flask(__name__)
 # Flask Routes
 #################################################
 
+# For precipitation route
+# Convert the query results to a dictionary using date as the key and prcp as the value.
+# Return the JSON representation of the dictionary.
 @app.route("/api/v1.0/precipitation")
 def precipitation():
 	# Create our session from Python to the DB
@@ -57,6 +60,8 @@ def precipitation():
 
 	return jsonify(precipitation)
 
+# For stations route:
+# Return a JSON list of stations from the dataset
 @app.route("/api/v1.0/stations")
 def stations():
 	session = Session(engine)
@@ -80,6 +85,9 @@ def stations():
 
 	return jsonify(station_data)
 
+# For tobs route:
+# Query the dates and temperature observations of the most active station for the last year of data.
+# Return a JSON list of temperature observations (TOBS) for the previous year.
 @app.route("/api/v1.0/tobs")
 def tobs():
 	session = Session(engine)
@@ -110,8 +118,11 @@ def tobs():
 
 	return jsonify(tobs_data)
 
+# For dynamic search by start date:
+# Calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+# Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start range.
 @app.route("/api/v1.0/<start>")
-def date_begin(start):
+def date_start(start):
 	session = Session(engine)
 
 	# Get last date in database
@@ -147,7 +158,6 @@ def date_begin(start):
 				tobs_data.append(tobs_dict)
 
 			return jsonify(tobs_data)
-#			return start
 
 		# If start not in database date range, return an error.
 		return jsonify({"error": f"{start} is not in database date range. Must be between {first_date} and {last_date}"}), 404
@@ -156,7 +166,63 @@ def date_begin(start):
 	# If start not a date or correct format, return an error.
 	return jsonify({"error": f"{start} is not a date or in correct format. Date should be YYYY-MM-DD"}), 404
 
+# For dynamic search by start date:
+# Calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+# Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start range.
+@app.route("/api/v1.0/<start>/<end>")
+def date_start_end(start, end):
+	session = Session(engine)
 
+	# Get last date in database
+	get_last_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+	last_date = get_last_date.date
+
+	# Get first date in database
+	get_first_date = session.query(Measurement.date).order_by(Measurement.date).first()
+	first_date = get_first_date.date
+
+	session.close()
+
+	# Check if start is actually a date. 
+	if re.fullmatch(r'\d\d\d\d-\d\d-\d\d',start) and re.fullmatch(r'\d\d\d\d-\d\d-\d\d',end):
+		# Check if start and end is within the dates in the database
+		if (dt.datetime.strptime(start, "%Y-%m-%d") >= dt.datetime.strptime(first_date, "%Y-%m-%d")) and \
+		(dt.datetime.strptime(start, "%Y-%m-%d") <= dt.datetime.strptime(last_date, "%Y-%m-%d")) and \
+		(dt.datetime.strptime(end, "%Y-%m-%d") >= dt.datetime.strptime(first_date, "%Y-%m-%d")) and \
+		(dt.datetime.strptime(end, "%Y-%m-%d") <= dt.datetime.strptime(last_date, "%Y-%m-%d")):
+			# Check that end date is after start date
+			if dt.datetime.strptime(start, "%Y-%m-%d") <= dt.datetime.strptime(end, "%Y-%m-%d"):
+				# Now we can perform the search in the databse. Start a new session.
+				session = Session(engine)
+				results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+				filter(Measurement.date >= start).all()
+				session.close()
+
+				# Put results in dictionary
+				tobs_data = []
+				for min_temp, max_temp, avg_temp in results:
+					tobs_dict = {}
+					tobs_dict["start date"] = start
+					tobs_dict["end date"] = end
+					tobs_dict["min temp"] = min_temp
+					tobs_dict["max temp"] = max_temp
+					tobs_dict["avg temp"] = avg_temp
+					tobs_data.append(tobs_dict)
+
+				return jsonify(tobs_data)
+
+			# If start is greater than end, return an error.
+			return jsonify({"error": f"start date ({start}) is after end date ({end}). Please make sure date range is correct."}), 404
+
+		# If start not in database date range, return an error.
+		return jsonify({"error": f"{start} and/or {end} is not in database date range. Must be between {first_date} and {last_date}"}), 404
+
+
+	# If start not a date or correct format, return an error.
+	return jsonify({"error": f"{start} and/or {end} is not a date or in correct format. Date should be YYYY-MM-DD"}), 404
+
+# For base route:
+# List all routes that are available.
 @app.route("/")
 def welcome():
 	session = Session(engine)
@@ -178,11 +244,14 @@ def welcome():
     	f'<ul><li>Queries station data</li></ul></p>'
     	f'<p><a href="/api/v1.0/tobs">/api/v1.0/tobs</a><br />'
     	f'<ul><li>Queries temperature data over the last year in the database at the most popular station</li></ul></p>'
-    	f'<p>/api/v1.0/&lt;date&gt;<br />'
-    	f'<ul><li>Date parameter must be in format YYYY-MM-DD to return a result. Return a JSON list of the \
-    	minimum temperature, the average temperature, and the max temperature for a given start start date. \
+    	f'<p>/api/v1.0/&lt;start_date&gt;<br />'
+    	f'<ul><li>Date parameter must be in format YYYY-MM-DD to return a result. Returns a JSON list of the \
+    	minimum temperature, the average temperature, and the max temperature between a given start date and {last_date}. \
     	Date range in database is {first_date} to {last_date}</li></ul></p>'
-
+    	f'<p>/api/v1.0/&lt;start_date&gt;/&lt;end_date&gt;<br />'
+    	f'<ul><li>Date parameters must be in format YYYY-MM-DD to return a result. Returns a JSON list of the \
+    	minimum temperature, the average temperature, and the max temperature between a given start date and end date. \
+    	Date range in database is {first_date} to {last_date}</li></ul></p>'
     )
 
 

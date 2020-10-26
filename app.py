@@ -196,7 +196,7 @@ def date_start_end(start, end):
 				# Now we can perform the search in the databse. Start a new session.
 				session = Session(engine)
 				results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
-				filter(Measurement.date >= start).all()
+				filter(Measurement.date >= start).filter(Measurement.date <= end).all()
 				session.close()
 
 				# Put results in dictionary

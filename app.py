@@ -47,16 +47,24 @@ def precipitation():
 	# Create our session from Python to the DB
 	session = Session(engine)
 
-    # Get precipitation info from DB
-	results = session.query(Measurement.date, Measurement.prcp).all()
+	# Get last date in database
+	get_last_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+	last_date = get_last_date.date
+
+	# Get a year earlier
+	year_before = dt.date.fromisoformat(last_date) - dt.timedelta(days=365)
+
+    # Get precipitation info from DB, filter by last year as requested by grading rubric
+	results = session.query(Measurement.date, func.sum(Measurement.prcp)).filter(Measurement.date >= year_before).group_by(
+		Measurement.date).all()
 
 	session.close()
 
 	precipitation = []
+	prcp_dict = {}
 	for date, prcp in results:
-		prcp_dict = {}
 		prcp_dict[date] = prcp
-		precipitation.append(prcp_dict)
+	precipitation.append(prcp_dict)
 
 	return jsonify(precipitation)
 
@@ -240,11 +248,11 @@ def welcome():
 
 	return (f'<h1>Available Routes</h1>'
     	f'<p><a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a><br />'
-    	f'<ul><li>Queries precipitation by date</li></ul></p>'
+    	f'<ul><li>Returns a JSON list of precipitation by date over the last year in the database.</li></ul></p>'
     	f'<p><a href="/api/v1.0/stations">/api/v1.0/stations</a><br />'
-    	f'<ul><li>Queries station data</li></ul></p>'
+    	f'<ul><li>Returns a JSON list of station data</li></ul></p>'
     	f'<p><a href="/api/v1.0/tobs">/api/v1.0/tobs</a><br />'
-    	f'<ul><li>Queries temperature data over the last year in the database at the most popular station</li></ul></p>'
+    	f'<ul><li>Returns a JSON list of temperature data over the last year in the database at the most popular station</li></ul></p>'
     	f'<p>/api/v1.0/&lt;start_date&gt;<br />'
     	f'<ul><li>Date parameter must be in format YYYY-MM-DD to return a result. Returns a JSON list of the \
     	minimum temperature, the average temperature, and the max temperature between a given start date and {last_date}. \

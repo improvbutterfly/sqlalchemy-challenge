@@ -20,13 +20,13 @@ The notebook created the following graphs:
 ### Available Routes
 
 /api/v1.0/precipitation
-* Queries precipitation by date
+* Returns a JSON list of precipitation by date over the last year in the database.
 
 /api/v1.0/stations
-* Queries station data
+* Returns a JSON list of station data.
 
 /api/v1.0/tobs
-* Queries temperature data over the last year in the database at the most popular station
+* Returns a JSON list of temperature data over the last year in the database at the most popular station.
 
 /api/v1.0/<start_date>
 * Date parameter must be in format YYYY-MM-DD to return a result. Returns a JSON list of the minimum temperature, the average temperature, and the max temperature between a given start date and last date in database. Date range in database is 2010-01-01 to 2017-08-23

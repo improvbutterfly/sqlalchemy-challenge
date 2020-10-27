@@ -250,9 +250,9 @@ def welcome():
     	f'<p><a href="/api/v1.0/precipitation">/api/v1.0/precipitation</a><br />'
     	f'<ul><li>Returns a JSON list of precipitation by date over the last year in the database.</li></ul></p>'
     	f'<p><a href="/api/v1.0/stations">/api/v1.0/stations</a><br />'
-    	f'<ul><li>Returns a JSON list of station data</li></ul></p>'
+    	f'<ul><li>Returns a JSON list of station data.</li></ul></p>'
     	f'<p><a href="/api/v1.0/tobs">/api/v1.0/tobs</a><br />'
-    	f'<ul><li>Returns a JSON list of temperature data over the last year in the database at the most popular station</li></ul></p>'
+    	f'<ul><li>Returns a JSON list of temperature data over the last year in the database at the most popular station.</li></ul></p>'
     	f'<p>/api/v1.0/&lt;start_date&gt;<br />'
     	f'<ul><li>Date parameter must be in format YYYY-MM-DD to return a result. Returns a JSON list of the \
     	minimum temperature, the average temperature, and the max temperature between a given start date and {last_date}. \

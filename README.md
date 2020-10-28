@@ -44,4 +44,6 @@ Further down in the aforementioned [notebook](climate.ipynb), you can input date
 
 #### Sample Charts
 
+| Trip Average Temperature | Daily Trip Temperature |
+|--------------------------|------------------------|
 | ![Trip Avg Temperature Example](images/trip_avg_temp.png) | ![Daily Trip Temperature Example](images/daily_trip_temps.png) |

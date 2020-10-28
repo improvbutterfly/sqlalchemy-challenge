@@ -35,3 +35,11 @@ The notebook created the following graphs:
 * Date parameters must be in format YYYY-MM-DD to return a result. Returns a JSON list of the minimum temperature, the average temperature, and the max temperature between a given start date and end date. Date range in database is 2010-01-01 to 2017-08-23
 
 N.B.: Date range and station with most observations are variable should more data be added to the database.
+
+## Bonus Analysis
+
+### Trip Temperature Analysis
+
+Further down in the aforementioned [notebook](climate.ipynb), you can input dates of a trip to analyse the temperature of the previous year's dates, then plot a bar chart of the average temperature, with an error bar calculated from the max and min temperatures.
+
+![Trip Avg Temperature Example](images/trip_avg_temp.png)

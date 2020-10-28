@@ -40,6 +40,8 @@ N.B.: Date range and station with most observations are variable should more dat
 
 ### Trip Temperature Analysis
 
-Further down in the aforementioned [notebook](climate.ipynb), you can input dates of a trip to analyse the temperature of the previous year's dates, then plot a bar chart of the average temperature, with an error bar calculated from the max and min temperatures.
+Further down in the aforementioned [notebook](climate.ipynb), you can input dates of a trip to analyse the temperature of the previous year's dates, then plot a bar chart of the average temperature, with an error bar calculated from the max and min temperatures, as well as an area plot with for each day of the trip calculated from the data on all the previous years in the database on the same date.
 
-![Trip Avg Temperature Example](images/trip_avg_temp.png)
+#### Sample Charts
+
+| ![Trip Avg Temperature Example](images/trip_avg_temp.png) | ![Daily Trip Temperature Example](images/daily_trip_temps.png) |

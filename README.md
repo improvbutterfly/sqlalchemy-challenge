@@ -29,10 +29,10 @@ The notebook created the following graphs:
 * Returns a JSON list of temperature data over the last year in the database at the most popular station.
 
 /api/v1.0/<start_date>
-* Date parameter must be in format YYYY-MM-DD to return a result. Returns a JSON list of the minimum temperature, the average temperature, and the max temperature between a given start date and last date in database. Date range in database is 2010-01-01 to 2017-08-23
+* Date parameter must be in format YYYY-MM-DD to return a result. Returns a JSON list of the minimum temperature, the average temperature, and the max temperature between a given start date and last date in database. Date range in database is 2010-01-01 to 2017-08-23.
 
 /api/v1.0/<start_date>/<end_date>
-* Date parameters must be in format YYYY-MM-DD to return a result. Returns a JSON list of the minimum temperature, the average temperature, and the max temperature between a given start date and end date. Date range in database is 2010-01-01 to 2017-08-23
+* Date parameters must be in format YYYY-MM-DD to return a result. Returns a JSON list of the minimum temperature, the average temperature, and the max temperature between a given start date and end date. Date range in database is 2010-01-01 to 2017-08-23.
 
 N.B.: Date range and station with most observations are variable should more data be added to the database.
 

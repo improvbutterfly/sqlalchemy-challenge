@@ -256,11 +256,11 @@ def welcome():
     	f'<p>/api/v1.0/&lt;start_date&gt;<br />'
     	f'<ul><li>Date parameter must be in format YYYY-MM-DD to return a result. Returns a JSON list of the \
     	minimum temperature, the average temperature, and the max temperature between a given start date and {last_date}. \
-    	Date range in database is {first_date} to {last_date}</li></ul></p>'
+    	Date range in database is {first_date} to {last_date}.</li></ul></p>'
     	f'<p>/api/v1.0/&lt;start_date&gt;/&lt;end_date&gt;<br />'
     	f'<ul><li>Date parameters must be in format YYYY-MM-DD to return a result. Returns a JSON list of the \
     	minimum temperature, the average temperature, and the max temperature between a given start date and end date. \
-    	Date range in database is {first_date} to {last_date}</li></ul></p>'
+    	Date range in database is {first_date} to {last_date}.</li></ul></p>'
     )
 
 
